@@ -29,6 +29,7 @@ std::vector<Customer> load_customers(const std::string& filename, size_t max_row
             c.c_custkey = std::stoi(parts[0]);
             c.c_name = parts[1];
             rows.push_back(c);
+
             if (++cnt == max_rows) break;
         }
     }
@@ -51,8 +52,10 @@ std::vector<OrderRec> load_orders(const std::string& filename, size_t max_rows) 
             OrderRec o;
             o.o_orderkey = std::stoi(parts[0]);
             o.o_custkey = std::stoi(parts[1]);
-            if (parts.size() >= 9) o.o_comment = parts[8];
+            if (parts.size() >= 9)
+                o.o_comment = parts[8];
             rows.push_back(o);
+
             if (++cnt == max_rows) break;
         }
     }
@@ -65,7 +68,11 @@ void save_joined(const std::string& filename, const std::vector<JoinedRow>& rows
         std::cerr << "[save_joined] cannot open: " << filename << "\n";
         return;
     }
-    for (const auto& r : rows)
-        out << r.c_custkey << '|' << r.c_name << '|'
-            << r.o_orderkey << '|' << r.o_comment << "\n";
+
+    for (const auto& r : rows) {
+        out << r.c_custkey << '|'
+            << r.c_name << '|'
+            << r.o_orderkey << '|'
+            << r.o_comment << "\n";
+    }
 }

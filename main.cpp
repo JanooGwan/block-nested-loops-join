@@ -16,20 +16,40 @@ int main(int argc, char** argv) {
     if (argc >= 5) capOrders = std::stoul(argv[4]);
     if (argc >= 6) useBlock = (std::string(argv[5]) != "simple");
 
-    std::string cpath = dataDir + "/customer.tbl";
-    std::string opath = dataDir + "/orders.tbl";
+    std::string ctbl  = dataDir + "/customer.tbl";
+    std::string otbl  = dataDir + "/orders.tbl";
+    std::string cdat  = dataDir + "/customer.dat";   // ★ 디스크 블록 파일
 
     auto t0 = std::chrono::high_resolution_clock::now();
-    auto customers = load_customers(cpath, capCustomers);
-    auto orders = load_orders(opath, capOrders);
+
+    // inner(orders)는 항상 메모리에 로딩
+    auto orders = load_orders(otbl, capOrders);
+
+    // simple 모드에서만 customer 전체 로딩
+    std::vector<Customer> customers;
+    if (!useBlock) {
+        customers = load_customers(ctbl, capCustomers);
+    }
+
     auto t1 = std::chrono::high_resolution_clock::now();
 
-    std::cout << "Loaded C=" << customers.size() << ", O=" << orders.size() << "\n";
+    std::cout << "Loaded (for join)  O=" << orders.size();
+    if (!useBlock)
+        std::cout << ", C=" << customers.size();
+    std::cout << "\n";
 
     std::vector<JoinedRow> joined;
+
     auto t2start = std::chrono::high_resolution_clock::now();
-    if (useBlock) joined = block_nested_join(customers, orders, blockSize);
-    else joined = simple_nested_join(customers, orders);
+
+    if (useBlock) {
+        // ★ 진짜 BNL: customer.dat 을 블록 단위로 읽으면서 join
+        joined = block_nested_join_disk(cdat, orders, blockSize);
+    } else {
+        // 기존 simple nested loop
+        joined = simple_nested_join(customers, orders);
+    }
+
     auto t2end = std::chrono::high_resolution_clock::now();
 
     save_joined("output/result.tbl", joined);
@@ -40,7 +60,8 @@ int main(int argc, char** argv) {
     std::cout << "Join result rows: " << joined.size() << "\n";
     std::cout << "Load time: " << load_ms << " ms\n";
     std::cout << "Join time: " << join_ms << " ms\n";
-    std::cout << (useBlock ? "Mode: BLOCK" : "Mode: SIMPLE") << ", blockSize=" << blockSize << "\n";
+    std::cout << (useBlock ? "Mode: BLOCK-DISK" : "Mode: SIMPLE")
+              << ", blockSize=" << blockSize << "\n";
 
     return 0;
 }
