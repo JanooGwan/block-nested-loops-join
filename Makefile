@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -O2 -std=c++17 -Wall -Wextra -pthread
 
-SRCS_APP = main.cpp io.cpp join_simple.cpp join_block.cpp
+SRCS_APP = main.cpp io.cpp join_simple.cpp join_block.cpp join_block_old.cpp
 OBJS_APP = $(SRCS_APP:%.cpp=build/%.o)
 
 all: prep app tbl2dat

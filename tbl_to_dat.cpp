@@ -2,13 +2,9 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include "record.h"
 
-constexpr size_t BLOCK_SIZE = 8192;
 
-struct BlockHeader {
-    int num_records;
-    int free_offset;
-};
 
 void init_block(char* block) {
     BlockHeader* hdr = reinterpret_cast<BlockHeader*>(block);

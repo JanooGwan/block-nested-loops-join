@@ -67,3 +67,8 @@ std::vector<JoinedRow> block_nested_join_disk(
     const std::vector<OrderRec> &orders,
     size_t blockSize   // 논리 블록당 customer 개수
 );
+
+std::vector<JoinedRow> block_nested_join_disk_old(
+    const std::string &customer_dat_path,
+    const std::vector<OrderRec> &orders,
+    size_t blockSize);
