@@ -52,8 +52,8 @@ std::vector<JoinedRow> simple_nested_join(const std::vector<Customer> &C,
 constexpr size_t BLOCK_SIZE = 8192;
 
 struct BlockHeader {
-    int num_records;
-    int free_offset;
+    int num_records; // 현재 블록 내 저장된 레코드 수
+    int free_offset; // 현재까지 사용된 바이트 수(다음 레코드가 들어갈 위치)
 };
 
 // -----------------------------
